@@ -1,3 +1,10 @@
+import subprocess
+import sys
+ 
+# Streamlit Cloud pe spacy install karo
+subprocess.run([sys.executable, "-m", "pip", "install", "spacy==3.7.4"], capture_output=True)
+subprocess.run([sys.executable, "-m", "pip", "install", "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl"], capture_output=True)
+ 
 import streamlit as st
 import spacy
  
@@ -73,7 +80,6 @@ def render_highlighted_text(results):
             )
     return " ".join(html_parts)
  
-# ── UI ──
 st.markdown('<div class="main-title">🏷️ Named Entity Recognition System</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Text mein se automatically Person, Organization, Location dhoondta hai</div>', unsafe_allow_html=True)
 st.divider()
@@ -167,7 +173,6 @@ with right_col:
             unsafe_allow_html=True
         )
  
-# ── Legend ──
 st.divider()
 st.subheader("📚 Entity Types")
  
