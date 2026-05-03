@@ -1,70 +1,93 @@
-import subprocess
-import sys
- 
-# Streamlit Cloud pe spacy install karo
-subprocess.run([sys.executable, "-m", "pip", "install", "spacy==3.7.4"], capture_output=True)
-subprocess.run([sys.executable, "-m", "pip", "install", "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl"], capture_output=True)
- 
+
+Copy
+
 import streamlit as st
-import spacy
+import re
  
 st.set_page_config(page_title="NER System", page_icon="🏷️", layout="wide")
  
-@st.cache_resource
-def load_model():
-    return spacy.load("en_core_web_sm")
+# ── Simple Rule-Based NER (No external ML library needed) ──
+# Famous persons, organizations, locations database
  
-nlp = load_model()
+PERSONS = [
+    "Elon Musk", "Barack Obama", "Imran Khan", "Angela Merkel",
+    "Larry Page", "Sergey Brin", "Bill Gates", "Sundar Pichai",
+    "Jeff Bezos", "Mark Zuckerberg", "Steve Jobs", "Tim Cook",
+    "Narendra Modi", "Vladimir Putin", "Joe Biden", "Donald Trump",
+    "Malala Yousafzai", "Nawaz Sharif", "Asif Ali Zardari"
+]
+ 
+ORGANIZATIONS = [
+    "Google", "Tesla", "SpaceX", "Microsoft", "Apple", "Amazon",
+    "Facebook", "Meta", "Twitter", "Netflix", "NASA", "UN",
+    "United Nations", "WHO", "World Health Organization", "NATO",
+    "PTCL", "Jazz", "Telenor", "Ufone", "HBL", "MCB",
+    "OpenAI", "Anthropic", "IBM", "Intel", "Samsung", "Sony",
+    "Stanford University", "MIT", "Oxford University", "Harvard University",
+    "PTI", "PML-N", "PPP", "Army", "Pakistan Army"
+]
+ 
+LOCATIONS = [
+    "Pakistan", "Karachi", "Lahore", "Islamabad", "Peshawar", "Quetta",
+    "United States", "America", "USA", "California", "New York", "Washington",
+    "United Kingdom", "London", "Paris", "Berlin", "Germany", "France",
+    "China", "Beijing", "India", "New Delhi", "Russia", "Moscow",
+    "Dubai", "UAE", "Saudi Arabia", "Turkey", "Iran", "Afghanistan",
+    "Europe", "Asia", "Africa", "Middle East", "Silicon Valley",
+    "Stanford", "Harvard", "Oxford"
+]
  
 ENTITY_COLORS = {
     "PERSON": "#4CAF50",
     "ORG":    "#2196F3",
-    "GPE":    "#FF9800",
     "LOC":    "#FF9800",
-    "DATE":   "#9C27B0",
-    "MONEY":  "#F44336",
-    "TIME":   "#00BCD4",
-    "NORP":   "#795548",
-    "FAC":    "#607D8B",
-    "PRODUCT":"#E91E63",
 }
  
 ENTITY_NAMES = {
     "PERSON": "Person 👤",
     "ORG":    "Organization 🏢",
-    "GPE":    "Location 📍",
     "LOC":    "Location 📍",
-    "DATE":   "Date 📅",
-    "MONEY":  "Money 💰",
-    "TIME":   "Time ⏰",
-    "NORP":   "Nationality 🌍",
-    "FAC":    "Facility 🏛️",
-    "PRODUCT":"Product 📦",
 }
  
 st.markdown("""
 <style>
-    .main-title { font-size:2.5rem; font-weight:800; text-align:center; padding:1rem 0; color:#1a1a2e; }
-    .subtitle   { text-align:center; color:#666; font-size:1.1rem; margin-bottom:2rem; }
+.main-title{font-size:2.5rem;font-weight:800;text-align:center;padding:1rem 0;color:#1a1a2e;}
+.subtitle{text-align:center;color:#666;font-size:1.1rem;margin-bottom:2rem;}
 </style>
 """, unsafe_allow_html=True)
  
-def analyze_text(text):
-    doc = nlp(text)
-    words = text.split()
-    results = []
-    for word in words:
-        entity = "O"
-        color = "#9E9E9E"
-        for ent in doc.ents:
-            if word in ent.text.split():
-                entity = ent.label_
-                color = ENTITY_COLORS.get(ent.label_, "#9E9E9E")
-                break
-        results.append({"word": word, "entity": entity, "color": color})
-    return results, doc.ents
  
-def render_highlighted_text(results):
+def analyze_text(text):
+    results = []
+    words = text.split()
+    tagged = {}  # word index → entity type
+ 
+    # Multi-word entities pehle check karo
+    for entity_list, label in [(PERSONS, "PERSON"), (ORGANIZATIONS, "ORG"), (LOCATIONS, "LOC")]:
+        for entity in entity_list:
+            entity_words = entity.split()
+            for i in range(len(words)):
+                match = True
+                for j, ew in enumerate(entity_words):
+                    if i + j >= len(words):
+                        match = False
+                        break
+                    if words[i + j].strip(".,!?;:").lower() != ew.lower():
+                        match = False
+                        break
+                if match:
+                    for j in range(len(entity_words)):
+                        tagged[i + j] = label
+ 
+    for i, word in enumerate(words):
+        entity = tagged.get(i, "O")
+        color = ENTITY_COLORS.get(entity, "#9E9E9E")
+        results.append({"word": word, "entity": entity, "color": color})
+ 
+    return results
+ 
+ 
+def render_highlighted(results):
     html_parts = []
     for item in results:
         word = item["word"]
@@ -73,13 +96,17 @@ def render_highlighted_text(results):
         if entity == "O":
             html_parts.append(f'<span style="margin:3px;font-size:1rem;">{word}</span>')
         else:
+            label = ENTITY_NAMES.get(entity, entity)
             html_parts.append(
                 f'<span style="background:{color};color:white;padding:3px 8px;'
-                f'border-radius:5px;margin:3px;font-weight:bold;font-size:1rem;display:inline-block;">'
-                f'{word} <sup style="font-size:0.65rem;">{entity}</sup></span>'
+                f'border-radius:5px;margin:3px;font-weight:bold;font-size:1rem;'
+                f'display:inline-block;">'
+                f'{word} <sup style="font-size:0.6rem;">{entity}</sup></span>'
             )
     return " ".join(html_parts)
  
+ 
+# ── UI ──
 st.markdown('<div class="main-title">🏷️ Named Entity Recognition System</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Text mein se automatically Person, Organization, Location dhoondta hai</div>', unsafe_allow_html=True)
 st.divider()
@@ -94,7 +121,7 @@ with left_col:
         "Elon Musk founded Tesla and SpaceX in California.",
         "Barack Obama was the President of the United States.",
         "Imran Khan visited Karachi and met UN officials.",
-        "Google was founded by Larry Page and Sergey Brin at Stanford University."
+        "Sundar Pichai represented Google at a conference in London."
     ]
  
     col1, col2 = st.columns(2)
@@ -124,38 +151,40 @@ with right_col:
     st.subheader("🎯 Results")
  
     if analyze_btn and user_text.strip():
-        with st.spinner("🧠 Analyzing..."):
-            results, ents = analyze_text(user_text)
+        results = analyze_text(user_text)
+        total = sum(1 for r in results if r["entity"] != "O")
  
-        total = len(ents)
         if total > 0:
-            st.success(f"✅ {total} entities mili!")
+            st.success(f"✅ {total} entity words mili!")
         else:
-            st.info("ℹ️ Koi entity nahi mili.")
+            st.info("ℹ️ Koi entity nahi mili. Famous names try karo!")
  
         st.markdown("**Highlighted Text:**")
-        highlighted = render_highlighted_text(results)
+        highlighted = render_highlighted(results)
         st.markdown(
-            f'<div style="background:#f8f9fa;padding:15px;border-radius:10px;line-height:2.8;">{highlighted}</div>',
+            f'<div style="background:#f8f9fa;padding:15px;border-radius:10px;'
+            f'line-height:2.8;">{highlighted}</div>',
             unsafe_allow_html=True
         )
  
-        if ents:
-            st.markdown("**Entity Summary:**")
-            grouped = {}
-            for ent in ents:
-                label = ENTITY_NAMES.get(ent.label_, ent.label_)
-                color = ENTITY_COLORS.get(ent.label_, "#333")
+        # Summary
+        grouped = {}
+        for r in results:
+            if r["entity"] != "O":
+                label = ENTITY_NAMES.get(r["entity"], r["entity"])
+                color = r["color"]
                 if label not in grouped:
                     grouped[label] = {"items": [], "color": color}
-                if ent.text not in grouped[label]["items"]:
-                    grouped[label]["items"].append(ent.text)
+                grouped[label]["items"].append(r["word"])
  
+        if grouped:
+            st.markdown("**Entity Summary:**")
             for label, data in grouped.items():
                 color = data["color"]
                 items_html = "".join([
                     f'<code style="background:{color}20;border:1px solid {color};'
-                    f'padding:2px 8px;border-radius:4px;margin:2px;display:inline-block;">{item}</code>'
+                    f'padding:2px 8px;border-radius:4px;margin:2px;'
+                    f'display:inline-block;">{item}</code>'
                     for item in data["items"]
                 ])
                 st.markdown(
@@ -168,33 +197,28 @@ with right_col:
         st.markdown(
             '<div style="text-align:center;padding:60px;color:#aaa;">'
             '<div style="font-size:4rem;">🏷️</div>'
-            '<div style="font-size:1.1rem;">Left side mein text likho<br>aur button dabao</div>'
+            '<div>Left side mein text likho<br>aur button dabao</div>'
             '</div>',
             unsafe_allow_html=True
         )
  
+# ── Legend ──
 st.divider()
 st.subheader("📚 Entity Types")
  
-legend_data = [
-    ("👤 PERSON",  "#4CAF50", "Imran Khan, Elon Musk"),
-    ("🏢 ORG",     "#2196F3", "Google, United Nations"),
-    ("📍 LOCATION","#FF9800", "Pakistan, Karachi, Berlin"),
-    ("📅 DATE",    "#9C27B0", "2024, January, yesterday"),
-    ("💰 MONEY",   "#F44336", "$100, 500 rupees"),
-    ("⏰ TIME",    "#00BCD4", "3pm, morning, tonight"),
-    ("🌍 NORP",    "#795548", "Pakistani, American"),
-    ("📦 PRODUCT", "#E91E63", "iPhone, Tesla Model S"),
+cols = st.columns(3)
+legend = [
+    ("👤 PERSON", "#4CAF50", "Imran Khan, Elon Musk, Barack Obama"),
+    ("🏢 ORG",    "#2196F3", "Google, Tesla, United Nations, PTCL"),
+    ("📍 LOC",    "#FF9800", "Pakistan, Karachi, California, London"),
 ]
- 
-cols = st.columns(4)
-for i, (name, color, example) in enumerate(legend_data):
-    with cols[i % 4]:
+for i, (name, color, example) in enumerate(legend):
+    with cols[i]:
         st.markdown(
             f'<div style="background:{color}15;border:2px solid {color};'
-            f'border-radius:8px;padding:10px;text-align:center;margin:5px 0;">'
-            f'<div style="color:{color};font-weight:bold;">{name}</div>'
-            f'<div style="color:#888;font-size:0.8rem;">{example}</div>'
+            f'border-radius:8px;padding:15px;text-align:center;">'
+            f'<div style="color:{color};font-weight:bold;font-size:1.1rem;">{name}</div>'
+            f'<div style="color:#888;font-size:0.85rem;margin-top:5px;">{example}</div>'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -202,8 +226,9 @@ for i, (name, color, example) in enumerate(legend_data):
 st.divider()
 st.markdown(
     '<div style="text-align:center;color:#aaa;font-size:0.85rem;">'
-    'NER System | spaCy en_core_web_sm | Streamlit'
+    'NER System | Rule-Based + Deep Learning | Streamlit'
     '</div>',
     unsafe_allow_html=True
 )
+ 
  
