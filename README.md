@@ -3,8 +3,9 @@ A complete end-to-end Named Entity Recognition system built with deep learning (
 
 
 🔗 Live Links
-ResourceLink🚀 Live App https://name-entity-recognition-system-project-1.streamlit.app
-GitHub Repository https://github.com/samichohan/Name-Entity-Recognition-System-Project
+Resource Link🚀 
+Live App  https://name-entity-recognition-system-project-1.streamlit.app
+GitHub Repository  https://github.com/samichohan/Name-Entity-Recognition-System-Project
 
 📌 What is NER?
 Named Entity Recognition (NER) is a Natural Language Processing (NLP) task that automatically identifies and classifies named entities in text into predefined categories such as:
