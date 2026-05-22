@@ -5,7 +5,6 @@ A complete end-to-end Named Entity Recognition system built with deep learning (
 🔗 Live Links
 Resource Link🚀 
 
-
 Live App  https://name-entity-recognition-system-project-1.streamlit.app
 
 
@@ -15,25 +14,37 @@ GitHub Repository  https://github.com/samichohan/Name-Entity-Recognition-System-
 Named Entity Recognition (NER) is a Natural Language Processing (NLP) task that automatically identifies and classifies named entities in text into predefined categories such as:
 
 👤 Person — Names of people (e.g., Elon Musk, Imran Khan)
+
 🏢 Organization — Companies, institutions (e.g., Google, United Nations)
+
 📍 Location — Cities, countries, places (e.g., Karachi, California)
+
 📅 Date/Time — Temporal expressions (e.g., 2024, Monday)
+
 💰 Money — Monetary values (e.g., $100, 500 rupees)
 
 
 🎯 Project Overview
+
 This project implements a complete NER pipeline:
 User Input Text
       ↓
+
 Streamlit Frontend (UI)
       ↓
+
 FastAPI Backend (API Server)
       ↓
+
+
 Bidirectional LSTM Model / spaCy
       ↓
+
 Named Entities Extracted
       ↓
+
 Results Displayed with Color Highlighting
+
 
 🧠 Model Architecture
 The deep learning model uses a Bidirectional LSTM architecture:
@@ -71,26 +82,47 @@ Example:
  B-PER  I-PER  O        B-LOC
 
 🏗️ Project Structure
+
 Name-Entity-Recognition-System-Project/
+
 │
+
 ├── 📓 notebooks/
+
 │   └── train_model.py          # Google Colab training notebook
+
 │
+
 ├── ⚙️ backend/
+
 │   ├── main.py                 # FastAPI server & API endpoints
+
 │   └── model_utils.py          # Model loading & prediction functions
+
 │
+
 ├── 🎨 frontend/
+
 │   └── app.py                  # Streamlit UI application
+
 │
 ├── 🧠 model/
+
 │   ├── ner_model.keras          # Trained LSTM model
+
 │   ├── word2idx.pkl             # Word to index mapping
+
 │   ├── idx2label.pkl            # Index to label mapping
+
 │   └── config.json              # Model configuration
+
 │
+
 ├── requirements.txt             # Python dependencies
+
 └── README.md                    # Project documentation
+
+
 
 🚀 How to Run Locally
 Prerequisites
@@ -138,7 +170,9 @@ json{
 }
 
 🎨 Entity Color Coding
-EntityColorExample👤 PERSON🟢 Green #4CAF50Elon Musk, Imran Khan🏢 ORG🔵 Blue #2196F3Google, United Nations📍 LOCATION🟠 Orange #FF9800Pakistan, California📅 DATE🟣 Purple #9C27B02024, January💰 MONEY🔴 Red #F44336$100, 500 rupees⏰ TIME🩵 Cyan #00BCD43pm, morning🌍 NORP🟤 Brown #795548Pakistani, American
+EntityColorExample👤 PERSON🟢 Green #4CAF50Elon Musk, Imran Khan🏢 ORG🔵 Blue #2196F3Google, United Nations📍 LOCATION🟠 Orange 
+#FF9800Pakistan, California📅 DATE🟣 Purple #9C27B02024, January💰 MONEY🔴 Red #F44336$100, 500 rupees⏰ TIME🩵 Cyan #00BCD43pm, morning🌍 
+NORP🟤 Brown #795548Pakistani, American
 
 🛠️ Tech Stack
 ComponentTechnologyDeep Learning ModelTensorFlow / Keras — Bidirectional LSTMNLP LibraryspaCy (en_core_web_sm)Backend APIFastAPI + UvicornFrontend UIStreamlitDatasetCoNLL-2003 (Kaggle)Training EnvironmentGoogle Colab (GPU)DeploymentStreamlit CloudVersion ControlGitHub
