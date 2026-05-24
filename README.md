@@ -30,50 +30,73 @@ into predefined categories such as:
 🎯 Project Overview
 
 This project implements a complete NER pipeline:
+
+
 User Input Text
+
       ↓
 
 Streamlit Frontend (UI)
+     
       ↓
 
 FastAPI Backend (API Server)
+    
       ↓
 
 
 Bidirectional LSTM Model / spaCy
+     
       ↓
 
 Named Entities Extracted
+     
       ↓
+
 
 Results Displayed with Color Highlighting
 
 
 
+
+
 🧠 Model Architecture
+
 The deep learning model uses a Bidirectional LSTM architecture:
+
+
 Input (Word Indices)
+       
         ↓
 
 Embedding Layer (64 dimensions)
+      
         ↓
 
 Bidirectional LSTM (128 units) ← reads sentence forward & backward
+       
+        
         ↓
 
 Dropout (0.3) ← prevents overfitting
+       
         ↓
 
 Bidirectional LSTM (64 units)
 
+       
         ↓
+
 Dropout (0.3)
+       
         ↓
 
 TimeDistributed Dense (softmax) ← prediction per word
+       
         ↓
 
 Output (Entity Labels)
+
 Why Bidirectional LSTM?
 
 Normal LSTM reads text left to right only
