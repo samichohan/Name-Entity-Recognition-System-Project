@@ -11,7 +11,10 @@ Live App  https://name-entity-recognition-system-project-1.streamlit.app
 GitHub Repository  https://github.com/samichohan/Name-Entity-Recognition-System-Project
 
 📌 What is NER?
-Named Entity Recognition (NER) is a Natural Language Processing (NLP) task that automatically identifies and classifies named entities in text into predefined categories such as:
+
+Named Entity Recognition (NER) is a Natural Language Processing (NLP) task that automatically identifies and classifies named entities in text 
+
+into predefined categories such as:
 
 👤 Person — Names of people (e.g., Elon Musk, Imran Khan)
 
@@ -46,22 +49,30 @@ Named Entities Extracted
 Results Displayed with Color Highlighting
 
 
+
 🧠 Model Architecture
 The deep learning model uses a Bidirectional LSTM architecture:
 Input (Word Indices)
         ↓
+
 Embedding Layer (64 dimensions)
         ↓
+
 Bidirectional LSTM (128 units) ← reads sentence forward & backward
         ↓
+
 Dropout (0.3) ← prevents overfitting
         ↓
+
 Bidirectional LSTM (64 units)
+
         ↓
 Dropout (0.3)
         ↓
+
 TimeDistributed Dense (softmax) ← prediction per word
         ↓
+
 Output (Entity Labels)
 Why Bidirectional LSTM?
 
@@ -75,6 +86,7 @@ Example: To identify "Musk" as a PERSON, the model uses "Elon" (before) AND the 
 📊 Dataset
 
 PropertyDetailsNameCoNLL-2003SourceKaggle — CoNLL-2003 English VersionTrain Sentences~14,041Validation Sentences~3,250Test 
+
 Sentences~3,453Entity TypesPER, ORG, LOC, MISC
 
 Label Format (BIO Tagging)
@@ -221,6 +233,7 @@ json{
 🎨 Entity Color Coding
 
 EntityColorExample👤 PERSON🟢 Green #4CAF50Elon Musk, Imran Khan🏢 ORG🔵 Blue #2196F3Google, United Nations📍 LOCATION🟠 Orange 
+
 #FF9800Pakistan, California📅 DATE🟣 Purple #9C27B02024, January💰 MONEY🔴 Red #F44336$100, 500 rupees⏰ TIME🩵 Cyan #00BCD43pm, morning🌍 
 
 NORP🟤 Brown #795548Pakistani, American
@@ -230,6 +243,7 @@ NORP🟤 Brown #795548Pakistani, American
 🛠️ Tech Stack
 
 ComponentTechnologyDeep Learning ModelTensorFlow / Keras — Bidirectional LSTMNLP LibraryspaCy (en_core_web_sm)Backend APIFastAPI + 
+
 UvicornFrontend UIStreamlitDatasetCoNLL-2003 (Kaggle)Training EnvironmentGoogle Colab (GPU)DeploymentStreamlit CloudVersion ControlGitHub
 
 
@@ -237,6 +251,7 @@ UvicornFrontend UIStreamlitDatasetCoNLL-2003 (Kaggle)Training EnvironmentGoogle 
 📈 Model Training Details
 
 ParameterValueEmbedding Dimension64LSTM Units (Layer 1)128 (Bidirectional)LSTM Units (Layer 2)64 (Bidirectional)Dropout Rate0.3Max Sequence 
+
 Length50Batch Size32Epochs15 (Early Stopping)OptimizerAdamLoss FunctionCategorical Crossentropy
 
 
